@@ -7,7 +7,8 @@ app = Flask(__name__)
 
 # Pre-wired API keys
 GEMINI_API_KEY = "AIzaSyCvqYeMJ2nyUvsDeVte_5CBkqosKNbZDsQ"
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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
+"
 
 # Email settings
 SMTP_SERVER = "smtp.gmail.com"
