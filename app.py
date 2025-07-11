@@ -11,8 +11,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 app = Flask(__name__)
 
 # API Keys
-GEMINI_API_KEY = "AIzaSyCiPexCuwjINDw_IGmv_rm1Xfm2sQJtohY"  # ✅ Updated Gemini key
-OPENAI_API_KEY = "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"
+GEMINI_API_KEY = "AIzaSyCiPexCuwjINDw_IGmv_rm1Xfm2sQJtohY"  # ✅ Gemini key
+OPENAI_API_KEY = "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"  # ✅ OpenAI key
 openai.api_key = OPENAI_API_KEY
 
 # Email
@@ -67,7 +67,7 @@ def generate_reply(prompt, role="chatgpt"):
             json={"contents": [{"parts": [{"text": prompt}]}]}
         )
         data = response.json()
-        # ✅ Fix: check for 'candidates' or fallback to the new format
+        # ✅ Check for Gemini response
         try:
             text = data["candidates"][0]["content"]["parts"][0]["text"]
             return text
@@ -75,7 +75,7 @@ def generate_reply(prompt, role="chatgpt"):
             return "[Gemini API Error: Unexpected response format]"
     else:
         try:
-            # ✅ Fix for openai>=1.0.0 API
+            # ✅ OpenAI API fix for >=1.0.0
             response = openai.chat.completions.create(
                 model="gpt-4",
                 messages=[{"role": "user", "content": prompt}]
