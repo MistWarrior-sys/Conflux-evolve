@@ -1,4 +1,4 @@
-rom flask import Flask, request, send_file, render_template_string
+from flask import Flask, request, send_file, render_template_string
 from datetime import datetime
 import smtplib
 from email.message import EmailMessage
