@@ -7,13 +7,13 @@ app = Flask(__name__)
 
 # Pre-wired API keys
 GEMINI_API_KEY = "AIzaSyCvqYeMJ2nyUvsDeVte_5CBkqosKNbZDsQ"
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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"
 
 # Email settings
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-EMAIL_ADDRESS = "your.email@gmail.com"  # Replace with your Gmail
-EMAIL_PASSWORD = "your-app-specific-password"  # Replace with Gmail app password
+EMAIL_ADDRESS = "abdulrhman.sea@gmail.com" # Your Gmail address
+EMAIL_PASSWORD = "ppmtinvzfoxtycfb" # Your generated App Password
 
 # PDF file path
 PDF_FILE = "The_Conflux.pdf"
@@ -31,66 +31,66 @@ DASHBOARD_HTML = """
 <title>The Conflux Automation</title>
 <h1>The Conflux Automation Dashboard</h1>
 <form method="POST">
-    <p>Password: <input type="password" name="password" /></p>
-    <p>Loops: <input type="number" name="loops" value="{{ loops }}"></p>
-    <p>Artworks: <input type="number" name="artworks" value="{{ artworks }}"></p>
-    <p><button name="action" value="trigger">Trigger Manual Run</button></p>
-    <p><button name="action" value="reset">Reset to Defaults</button></p>
+<p>Password: <input type="password" name="password" /></p>
+<p>Loops: <input type="number" name="loops" value="{{ loops }}"></p>
+<p>Artworks: <input type="number" name="artworks" value="{{ artworks }}"></p>
+<p><button name="action" value="trigger">Trigger Manual Run</button></p>
+<p><button name="action" value="reset">Reset to Defaults</button></p>
 </form>
 """
 
 @app.route("/", methods=["GET", "POST"])
 def dashboard():
-    loops = DEFAULT_LOOPS
-    artworks = DEFAULT_ARTWORKS
+loops = DEFAULT_LOOPS
+artworks = DEFAULT_ARTWORKS
 
-    if request.method == "POST":
-        password = request.form.get("password")
-        if password != DASHBOARD_PASSWORD:
-            return "Incorrect password", 403
+if request.method == "POST":
+password = request.form.get("password")
+if password != DASHBOARD_PASSWORD:
+return "Incorrect password", 403
 
-        action = request.form.get("action")
-        if action == "trigger":
-            loops = int(request.form.get("loops", DEFAULT_LOOPS))
-            artworks = int(request.form.get("artworks", DEFAULT_ARTWORKS))
-            run_brainstorm(loops, artworks)
-            return "Manual run triggered!"
-        elif action == "reset":
-            loops = DEFAULT_LOOPS
-            artworks = DEFAULT_ARTWORKS
-            return "Settings reset to defaults!"
+action = request.form.get("action")
+if action == "trigger":
+loops = int(request.form.get("loops", DEFAULT_LOOPS))
+artworks = int(request.form.get("artworks", DEFAULT_ARTWORKS))
+run_brainstorm(loops, artworks)
+return "Manual run triggered!"
+elif action == "reset":
+loops = DEFAULT_LOOPS
+artworks = DEFAULT_ARTWORKS
+return "Settings reset to defaults!"
 
-    return render_template_string(DASHBOARD_HTML, loops=loops, artworks=artworks)
+return render_template_string(DASHBOARD_HTML, loops=loops, artworks=artworks)
 
 def run_brainstorm(loops, artworks):
-    # Simulate brainstorm loop
-    print(f"Running brainstorm with {loops} loops and {artworks} artworks...")
+# Simulate brainstorm loop
+print(f"Running brainstorm with {loops} loops and {artworks} artworks...")
 
-    # Generate dummy PDF
-    with open(PDF_FILE, "w") as f:
-        f.write(f"The Conflux Brainstorm - {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
-        f.write(f"Loops: {loops}, Artworks: {artworks}\n")
-        f.write("This is a placeholder for your brainstorm summary.\n")
+# Generate dummy PDF
+with open(PDF_FILE, "w") as f:
+f.write(f"The Conflux Brainstorm - {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
+f.write(f"Loops: {loops}, Artworks: {artworks}\n")
+f.write("This is a placeholder for your brainstorm summary.\n")
 
-    # Send email
-    send_email(PDF_FILE)
+# Send email
+send_email(PDF_FILE)
 
 def send_email(pdf_file):
-    msg = EmailMessage()
-    msg["Subject"] = "The Conflux Brainstorm PDF"
-    msg["From"] = EMAIL_ADDRESS
-    msg["To"] = "abdulrhman.sea@gmail.com"
+msg = EmailMessage()
+msg["Subject"] = "The Conflux Brainstorm PDF"
+msg["From"] = EMAIL_ADDRESS
+msg["To"] = "abdulrhman.sea@gmail.com"
 
-    msg.set_content("Your latest brainstorm PDF is attached.")
+msg.set_content("Your latest brainstorm PDF is attached.")
 
-    with open(pdf_file, "rb") as f:
-        msg.add_attachment(f.read(), maintype="application", subtype="pdf", filename=pdf_file)
+with open(pdf_file, "rb") as f:
+msg.add_attachment(f.read(), maintype="application", subtype="pdf", filename=pdf_file)
 
-    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-        server.starttls()
-        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        server.send_message(msg)
-    print("Email sent!")
+with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+server.starttls()
+server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+server.send_message(msg)
+print("Email sent!")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+app.run(host="0.0.0.0", port=10000)
