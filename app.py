@@ -11,7 +11,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 app = Flask(__name__)
 
 # API Keys
-GEMINI_API_KEY = "AIzaSyCvqYeMJ2nyUvsDeVte_5CBkqosKNbZDsQ"
+GEMINI_API_KEY = "AIzaSyCiPexCuwjINDw_IGmv_rm1Xfm2sQJtohY"  # ✅ Updated Gemini key
 OPENAI_API_KEY = "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"
 openai.api_key = OPENAI_API_KEY
 
@@ -28,7 +28,8 @@ DEFAULT_LOOPS = 5
 DEFAULT_ARTWORKS = 3
 PROJECT_NAME = "The Conflux, 2D video game project"
 
-DASHBOARD_HTML = """<!doctype html>
+DASHBOARD_HTML = """
+<!doctype html>
 <title>The Conflux Automation</title>
 <h1>The Conflux Automation Dashboard</h1>
 <form method="POST">
@@ -65,20 +66,31 @@ def generate_reply(prompt, role="chatgpt"):
             params={"key": GEMINI_API_KEY},
             json={"contents": [{"parts": [{"text": prompt}]}]}
         )
-        return response.json()["candidates"][0]["content"]["parts"][0]["text"]
+        data = response.json()
+        if "candidates" in data:
+            return data["candidates"][0]["content"]["parts"][0]["text"]
+        else:
+            return "[Gemini API Error: Response invalid or no candidates found]"
     else:
         messages = [{"role": "user", "content": prompt}]
-        response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
-        return response.choices[0].message.content
+        try:
+            response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"[ChatGPT API Error: {str(e)}]"
 
 def generate_image(prompt):
-    response = openai.Image.create(prompt=prompt, n=1, size="512x512")
-    image_url = response["data"][0]["url"]
-    img_data = requests.get(image_url).content
-    filename = f"/tmp/img_{datetime.now().timestamp()}.png"
-    with open(filename, "wb") as f:
-        f.write(img_data)
-    return filename
+    try:
+        response = openai.Image.create(prompt=prompt, n=1, size="512x512")
+        image_url = response["data"][0]["url"]
+        img_data = requests.get(image_url).content
+        filename = f"/tmp/img_{datetime.now().timestamp()}.png"
+        with open(filename, "wb") as f:
+            f.write(img_data)
+        return filename
+    except Exception as e:
+        print(f"Image generation failed: {e}")
+        return None
 
 def run_brainstorm(loops, artworks):
     doc = SimpleDocTemplate(PDF_FILE, pagesize=A4)
@@ -100,10 +112,14 @@ def run_brainstorm(loops, artworks):
     for i in range(artworks):
         img_prompt = f"Concept art for The Conflux, 2D cyberpunk side-scroller game - Artwork {i+1}"
         image_path = generate_image(img_prompt)
-        content.append(Spacer(1, 24))
-        content.append(Paragraph(f"<b>Artwork {i+1}</b>: {img_prompt}", styles["Heading3"]))
-        content.append(Image(image_path, width=300, height=300))
-        content.append(Spacer(1, 12))
+        if image_path:
+            content.append(Spacer(1, 24))
+            content.append(Paragraph(f"<b>Artwork {i+1}</b>: {img_prompt}", styles["Heading3"]))
+            content.append(Image(image_path, width=300, height=300))
+            content.append(Spacer(1, 12))
+        else:
+            content.append(Paragraph(f"<b>Artwork {i+1}</b>: [Image generation failed]", styles["Normal"]))
+            content.append(Spacer(1, 12))
 
     doc.build(content)
     send_email(PDF_FILE)
