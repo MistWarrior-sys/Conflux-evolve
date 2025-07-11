@@ -67,21 +67,26 @@ def generate_reply(prompt, role="chatgpt"):
             json={"contents": [{"parts": [{"text": prompt}]}]}
         )
         data = response.json()
-        if "candidates" in data:
-            return data["candidates"][0]["content"]["parts"][0]["text"]
-        else:
-            return "[Gemini API Error: Response invalid or no candidates found]"
-    else:
-        messages = [{"role": "user", "content": prompt}]
+        # ✅ Fix: check for 'candidates' or fallback to the new format
         try:
-            response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
+            text = data["candidates"][0]["content"]["parts"][0]["text"]
+            return text
+        except (KeyError, IndexError):
+            return "[Gemini API Error: Unexpected response format]"
+    else:
+        try:
+            # ✅ Fix for openai>=1.0.0 API
+            response = openai.chat.completions.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": prompt}]
+            )
             return response.choices[0].message.content
         except Exception as e:
             return f"[ChatGPT API Error: {str(e)}]"
 
 def generate_image(prompt):
     try:
-        response = openai.Image.create(prompt=prompt, n=1, size="512x512")
+        response = openai.images.generate(prompt=prompt, n=1, size="512x512")
         image_url = response["data"][0]["url"]
         img_data = requests.get(image_url).content
         filename = f"/tmp/img_{datetime.now().timestamp()}.png"
