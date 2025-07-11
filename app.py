@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # API Keys
 GEMINI_API_KEY = "AIzaSyCiPexCuwjINDw_IGmv_rm1Xfm2sQJtohY"  # ✅ Updated Gemini key
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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"
 openai.api_key = OPENAI_API_KEY
 
 # Email
