@@ -2,6 +2,7 @@ from flask import Flask, request, send_file, render_template_string
 from datetime import datetime
 import smtplib
 from email.message import EmailMessage
+from reportlab.pdfgen import canvas  # Added for real PDF generation
 
 app = Flask(__name__)
 
@@ -66,11 +67,13 @@ def run_brainstorm(loops, artworks):
     # Simulate brainstorm loop
     print(f"Running brainstorm with {loops} loops and {artworks} artworks...")
 
-    # Generate dummy PDF
-    with open(PDF_FILE, "w") as f:
-        f.write(f"The Conflux Brainstorm - {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
-        f.write(f"Loops: {loops}, Artworks: {artworks}\n")
-        f.write("This is a placeholder for your brainstorm summary.\n")
+    # Generate a real PDF
+    c = canvas.Canvas(PDF_FILE)
+    c.setFont("Helvetica", 12)
+    c.drawString(100, 750, f"The Conflux Brainstorm - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    c.drawString(100, 730, f"Loops: {loops}, Artworks: {artworks}")
+    c.drawString(100, 710, "This is a placeholder for your brainstorm summary.")
+    c.save()
 
     # Send email
     send_email(PDF_FILE)
